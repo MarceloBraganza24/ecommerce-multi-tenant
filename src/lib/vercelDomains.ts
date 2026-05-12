@@ -3,12 +3,12 @@ import { normalizeHost } from "@/lib/domainKeys";
 const VERCEL_API = "https://api.vercel.com";
 
 function getVercelEnv() {
-  const token = process.env.VERCEL_API_TOKEN;
-  const teamId = process.env.VERCEL_TEAM_ID;
-  const projectId = process.env.VERCEL_PROJECT_ID;
+  const token = process.env.APP_VERCEL_API_TOKEN;
+  const teamId = process.env.APP_VERCEL_TEAM_ID;
+  const projectId = process.env.APP_VERCEL_PROJECT_ID;
 
-  if (!token) throw new Error("Falta VERCEL_API_TOKEN");
-  if (!projectId) throw new Error("Falta VERCEL_PROJECT_ID");
+  if (!token) throw new Error("Falta APP_VERCEL_API_TOKEN");
+  if (!projectId) throw new Error("Falta APP_VERCEL_PROJECT_ID");
 
   return { token, teamId, projectId };
 }

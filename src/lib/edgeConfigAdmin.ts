@@ -12,11 +12,11 @@ type EdgeOperation =
     };
 
 function getEdgeConfigUrl() {
-  const edgeConfigId = process.env.EDGE_CONFIG_ID;
-  const teamId = process.env.VERCEL_TEAM_ID;
+  const edgeConfigId = process.env.APP_EDGE_CONFIG_ID;
+  const teamId = process.env.APP_VERCEL_TEAM_ID;
 
   if (!edgeConfigId) {
-    throw new Error("Falta EDGE_CONFIG_ID");
+    throw new Error("Falta APP_EDGE_CONFIG_ID");
   }
 
   const base = `https://api.vercel.com/v1/edge-config/${edgeConfigId}/items`;
@@ -25,10 +25,10 @@ function getEdgeConfigUrl() {
 }
 
 async function updateEdgeConfig(items: EdgeOperation[]) {
-  const token = process.env.VERCEL_API_TOKEN;
+  const token = process.env.APP_VERCEL_API_TOKEN;
 
   if (!token) {
-    throw new Error("Falta VERCEL_API_TOKEN");
+    throw new Error("Falta APP_VERCEL_API_TOKEN");
   }
 
   const res = await fetch(getEdgeConfigUrl(), {

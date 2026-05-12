@@ -47,7 +47,10 @@ export async function POST(req: Request) {
 
     await connectDB();
 
-    const tenant = await Tenant.findOne({ slug: store });
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const normalizedStore = String(store).trim();
+
+    const tenant = await Tenant.findOne({ slug: normalizedStore });
 
     if (!tenant) {
       return NextResponse.json(
@@ -56,22 +59,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 12);
+    const passwordHash = await bcrypt.hash(String(password), 12);
 
     const admin = await AdminUser.findOneAndUpdate(
       {
-        email: String(email).toLowerCase().trim(),
+        email: normalizedEmail,
         tenantId: tenant._id,
       },
       {
+        $set: {
+          name: String(name).trim(),
+          passwordHash,
+          active: true,
+        },
         $setOnInsert: {
           tenantId: tenant._id,
           tenantSlug: tenant.slug,
-          name,
-          email: String(email).toLowerCase().trim(),
-          passwordHash,
-          role: "owner",
-          active: true,
+          email: normalizedEmail,
+          role: "tenant_admin",
         },
       },
       {
