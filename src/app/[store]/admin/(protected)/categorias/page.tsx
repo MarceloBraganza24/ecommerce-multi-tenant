@@ -1,8 +1,11 @@
 import { Category } from "@/models/Category";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { createCategoryAction } from "../actions";
 import type { MongoCategory } from "@/types/store";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 
 type Props = {
   params: Promise<{ store: string }>;
@@ -10,11 +13,20 @@ type Props = {
 
 export default async function AdminCategoriesPage({ params }: Props) {
   const { store } = await params;
-  const { tenant } = await requireTenantAdmin(store);
+  
+  await requireTenantAdmin(store);
+
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   await connectDB();
 
-  const categories = (await Category.find({ tenantId: tenant._id })
+  const categories = (await Category.find({ tenantId: safeTenant._id })
     .sort({ name: 1 })
     .lean()) as MongoCategory[];
 
@@ -55,7 +67,11 @@ export default async function AdminCategoriesPage({ params }: Props) {
 
         <label>
           Imagen
-          <input name="image" />
+          <ImageUploader
+            store={store}
+            name="image"
+            label="Imagen"
+          />
         </label>
 
         <button className="adminPrimaryButton" type="submit">

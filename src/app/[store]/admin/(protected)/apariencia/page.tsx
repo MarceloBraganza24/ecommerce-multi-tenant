@@ -1,6 +1,9 @@
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { updateAppearanceAction } from "../actions";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
+import Image from "next/image";
 
 type Props = {
   params: Promise<{ store: string }>;
@@ -8,9 +11,18 @@ type Props = {
 
 export default async function AdminAppearancePage({ params }: Props) {
   const { store } = await params;
-  const { tenant } = await requireTenantAdmin(store);
+  
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
 
-  const appearance = tenant.appearance || {};
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
+
+  const appearance = safeTenant.appearance || {};
 
   return (
     <div>
@@ -54,7 +66,7 @@ export default async function AdminAppearancePage({ params }: Props) {
                 name="primaryColor"
                 type="color"
                 defaultValue={
-                  appearance.primaryColor || tenant.primaryColor || "#111827"
+                  appearance.primaryColor || safeTenant.primaryColor || "#111827"
                 }
               />
             </label>
@@ -156,7 +168,7 @@ export default async function AdminAppearancePage({ params }: Props) {
             Título hero
             <input
               name="heroTitle"
-              defaultValue={appearance.heroTitle || tenant.heroTitle || ""}
+              defaultValue={appearance.heroTitle || safeTenant.heroTitle || ""}
             />
           </label>
 
@@ -165,7 +177,7 @@ export default async function AdminAppearancePage({ params }: Props) {
             <textarea
               name="heroSubtitle"
               defaultValue={
-                appearance.heroSubtitle || tenant.heroSubtitle || ""
+                appearance.heroSubtitle || safeTenant.heroSubtitle || ""
               }
             />
           </label>
@@ -173,7 +185,7 @@ export default async function AdminAppearancePage({ params }: Props) {
           <ImageUploader
             name="heroImage"
             label="Imagen hero"
-            defaultValue={appearance.heroImage || tenant.heroImage || ""}
+            defaultValue={appearance.heroImage || safeTenant.heroImage || ""}
           />
 
           <label>
@@ -219,7 +231,7 @@ export default async function AdminAppearancePage({ params }: Props) {
             style={
               {
                 "--preview-primary":
-                  appearance.primaryColor || tenant.primaryColor || "#111827",
+                  appearance.primaryColor || safeTenant.primaryColor || "#111827",
                 "--preview-secondary":
                   appearance.secondaryColor || "#f59e0b",
                 "--preview-bg": appearance.backgroundColor || "#ffffff",
@@ -241,9 +253,15 @@ export default async function AdminAppearancePage({ params }: Props) {
             <div className="previewNav">
               <strong>
                 {appearance.logoImage ? (
-                  <img src={appearance.logoImage} alt="Logo" />
+                  <Image
+                    src={appearance.logoImage}
+                    alt="Logo"
+                    width={120}
+                    height={40}
+                    className="object-contain"
+                  />
                 ) : (
-                  tenant.logoText
+                  safeTenant.logoText
                 )}
               </strong>
               <span>☰ 🛒</span>
@@ -252,17 +270,23 @@ export default async function AdminAppearancePage({ params }: Props) {
             <div className="previewHero">
               <div>
                 <small>Nueva colección</small>
-                <h3>{appearance.heroTitle || tenant.heroTitle || "Tu tienda online"}</h3>
+                <h3>{appearance.heroTitle || safeTenant.heroTitle || "Tu tienda online"}</h3>
                 <p>
                   {appearance.heroSubtitle ||
-                    tenant.heroSubtitle ||
+                    safeTenant.heroSubtitle ||
                     "Personalizá la experiencia de compra de tu marca."}
                 </p>
                 <button>{appearance.heroCtaText || "Ver productos"}</button>
               </div>
 
               {appearance.heroImage && (
-                <img src={appearance.heroImage} alt="Hero preview" />
+                <Image
+                  src={appearance.heroImage}
+                  alt="Hero preview"
+                  width={1200}
+                  height={600}
+                  className="h-auto w-full rounded-2xl object-cover"
+                />
               )}
             </div>
 

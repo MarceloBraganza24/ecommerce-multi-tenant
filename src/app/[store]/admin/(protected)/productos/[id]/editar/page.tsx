@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
 import { Product } from "@/models/Product";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { updateProductAction } from "../../../actions";
 import type { MongoProduct } from "@/types/store";
 import { ImageUploader } from "@/components/admin/ImageUploader";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ store: string; id: string }>;
@@ -12,13 +13,22 @@ type Props = {
 
 export default async function EditProductPage({ params }: Props) {
   const { store, id } = await params;
-  const { tenant } = await requireTenantAdmin(store);
+  
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   await connectDB();
 
   const product = (await Product.findOne({
     _id: id,
-    tenantId: tenant._id,
+    tenantId: safeTenant._id,
   }).lean()) as MongoProduct | null;
 
   if (!product) notFound();

@@ -1,7 +1,9 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Context = {
   params: Promise<{ store: string }>;
@@ -9,7 +11,16 @@ type Context = {
 
 export async function GET(req: NextRequest, context: Context) {
   const { store } = await context.params;
-  const { tenant } = await requireTenantAdmin(store);
+
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   await connectDB();
 
@@ -21,7 +32,7 @@ export async function GET(req: NextRequest, context: Context) {
   const end = to ? new Date(to) : new Date();
 
   const events = await AnalyticsEvent.find({
-    tenantId: tenant._id,
+    tenantId: safeTenant._id,
     createdAt: { $gte: start, $lte: end },
   })
     .sort({ createdAt: -1 })

@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin  } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { Product } from "@/models/Product";
 import { Category } from "@/models/Category";
 import { Tenant } from "@/models/Tenant";
@@ -38,7 +38,10 @@ function parseVariants(value: string) {
 }
 
 function getTotalVariantStock(variants: ReturnType<typeof parseVariants>) {
-  return variants.reduce((acc, variant) => acc + Number(variant.stock || 0), 0);
+  return variants.reduce(
+    (acc, variant) => acc + Number(variant.stock || 0),
+    0
+  );
 }
 
 function getString(formData: FormData, key: string) {
@@ -56,19 +59,40 @@ function parseImages(value: string) {
     .filter(Boolean);
 }
 
-function parseProperties(value: string): Record<string, string | number | boolean> {
+function parseProperties(
+  value: string
+): Record<string, string | number | boolean> {
   if (!value.trim()) return {};
 
   try {
-    return JSON.parse(value) as Record<string, string | number | boolean>;
+    return JSON.parse(value) as Record<
+      string,
+      string | number | boolean
+    >;
   } catch {
     return {};
   }
 }
 
-export async function createProductAction(store: string, formData: FormData) {
+async function getSafeTenant(store: string) {
+  await requireTenantAdmin(store);
+
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  return JSON.parse(JSON.stringify(tenant));
+}
+
+export async function createProductAction(
+  store: string,
+  formData: FormData
+) {
   await connectDB();
-  const {tenant} = await requireTenantAdmin (store);
+
+  const tenant = await getSafeTenant(store);
 
   const variants = parseVariants(getString(formData, "variants"));
 
@@ -78,7 +102,8 @@ export async function createProductAction(store: string, formData: FormData) {
     slug: getString(formData, "slug"),
     description: getString(formData, "description"),
     price: getNumber(formData, "price"),
-    compareAtPrice: getNumber(formData, "compareAtPrice") || undefined,
+    compareAtPrice:
+      getNumber(formData, "compareAtPrice") || undefined,
     brand: getString(formData, "brand"),
     categorySlug: getString(formData, "categorySlug"),
     images: parseImages(getString(formData, "images")),
@@ -88,12 +113,15 @@ export async function createProductAction(store: string, formData: FormData) {
       : getNumber(formData, "stock"),
     featured: formData.get("featured") === "on",
     offer: formData.get("offer") === "on",
-    properties: parseProperties(getString(formData, "properties")),
+    properties: parseProperties(
+      getString(formData, "properties")
+    ),
     active: true,
   });
 
   revalidatePath(`/${store}`);
   revalidatePath(`/${store}/productos`);
+
   redirect(`/${store}/admin/productos`);
 }
 
@@ -103,7 +131,8 @@ export async function updateProductAction(
   formData: FormData
 ) {
   await connectDB();
-  const {tenant} = await requireTenantAdmin (store);
+
+  const tenant = await getSafeTenant(store);
 
   const variants = parseVariants(getString(formData, "variants"));
 
@@ -118,7 +147,8 @@ export async function updateProductAction(
         slug: getString(formData, "slug"),
         description: getString(formData, "description"),
         price: getNumber(formData, "price"),
-        compareAtPrice: getNumber(formData, "compareAtPrice") || undefined,
+        compareAtPrice:
+          getNumber(formData, "compareAtPrice") || undefined,
         brand: getString(formData, "brand"),
         categorySlug: getString(formData, "categorySlug"),
         images: parseImages(getString(formData, "images")),
@@ -129,33 +159,50 @@ export async function updateProductAction(
         featured: formData.get("featured") === "on",
         offer: formData.get("offer") === "on",
         active: formData.get("active") === "on",
-        properties: parseProperties(getString(formData, "properties")),
+        properties: parseProperties(
+          getString(formData, "properties")
+        ),
       },
     }
   );
 
   revalidatePath(`/${store}`);
   revalidatePath(`/${store}/productos`);
+
   redirect(`/${store}/admin/productos`);
 }
 
-export async function deleteProductAction(store: string, productId: string) {
+export async function deleteProductAction(
+  store: string,
+  productId: string
+) {
   await connectDB();
-  const {tenant} = await requireTenantAdmin (store);
+
+  const tenant = await getSafeTenant(store);
 
   await Product.updateOne(
-    { _id: productId, tenantId: tenant._id },
-    { $set: { active: false } }
+    {
+      _id: productId,
+      tenantId: tenant._id,
+    },
+    {
+      $set: { active: false },
+    }
   );
 
   revalidatePath(`/${store}`);
   revalidatePath(`/${store}/productos`);
+
   redirect(`/${store}/admin/productos`);
 }
 
-export async function createCategoryAction(store: string, formData: FormData) {
+export async function createCategoryAction(
+  store: string,
+  formData: FormData
+) {
   await connectDB();
-  const {tenant} = await requireTenantAdmin (store);
+
+  const tenant = await getSafeTenant(store);
 
   const parentId = getString(formData, "parentId");
 
@@ -170,6 +217,7 @@ export async function createCategoryAction(store: string, formData: FormData) {
 
   revalidatePath(`/${store}`);
   revalidatePath(`/${store}/productos`);
+
   redirect(`/${store}/admin/categorias`);
 }
 
@@ -178,7 +226,8 @@ export async function updateTenantSettingsAction(
   formData: FormData
 ) {
   await connectDB();
-  const {tenant} = await requireTenantAdmin (store);
+
+  const tenant = await getSafeTenant(store);
 
   await Tenant.updateOne(
     { _id: tenant._id },
@@ -188,19 +237,26 @@ export async function updateTenantSettingsAction(
         logoText: getString(formData, "logoText"),
         whatsapp: getString(formData, "whatsapp"),
         primaryColor: getString(formData, "primaryColor"),
-        freeShippingFrom: getNumber(formData, "freeShippingFrom"),
+        freeShippingFrom: getNumber(
+          formData,
+          "freeShippingFrom"
+        ),
         heroTitle: getString(formData, "heroTitle"),
         heroSubtitle: getString(formData, "heroSubtitle"),
         heroImage: getString(formData, "heroImage"),
         bannerText: getString(formData, "bannerText"),
         mpAccessToken: getString(formData, "mpAccessToken"),
-        "social.instagram": getString(formData, "instagram"),
+        "social.instagram": getString(
+          formData,
+          "instagram"
+        ),
         "social.facebook": getString(formData, "facebook"),
       },
     }
   );
 
   revalidatePath(`/${store}`);
+
   redirect(`/${store}/admin/configuracion`);
 }
 
@@ -211,13 +267,32 @@ export async function updateOrderStatusAction(
 ) {
   await connectDB();
 
-  const { tenant } = await requireTenantAdmin(store);
+  const tenant = await getSafeTenant(store);
 
-  const status = getString(formData, "status") as OrderStatus;
-  const trackingNumber = getString(formData, "trackingNumber");
-  const shippingCarrier = getString(formData, "shippingCarrier");
-  const shippingMethod = getString(formData, "shippingMethod");
-  const shippingNotes = getString(formData, "shippingNotes");
+  const status = getString(
+    formData,
+    "status"
+  ) as OrderStatus;
+
+  const trackingNumber = getString(
+    formData,
+    "trackingNumber"
+  );
+
+  const shippingCarrier = getString(
+    formData,
+    "shippingCarrier"
+  );
+
+  const shippingMethod = getString(
+    formData,
+    "shippingMethod"
+  );
+
+  const shippingNotes = getString(
+    formData,
+    "shippingNotes"
+  );
 
   const allowedStatuses: OrderStatus[] = [
     "pending",
@@ -275,26 +350,62 @@ export async function updateOrderStatusAction(
   revalidatePath(`/${store}/admin/pedidos/${orderId}`);
 }
 
-export async function updateAppearanceAction(store: string, formData: FormData) {
+export async function updateAppearanceAction(
+  store: string,
+  formData: FormData
+) {
   await connectDB();
 
-  const { tenant } = await requireTenantAdmin(store);
+  const tenant = await getSafeTenant(store);
 
   await Tenant.updateOne(
     { _id: tenant._id },
     {
       $set: {
-        "appearance.logoImage": getString(formData, "logoImage"),
-        "appearance.favicon": getString(formData, "favicon"),
+        "appearance.logoImage": getString(
+          formData,
+          "logoImage"
+        ),
 
-        "appearance.primaryColor": getString(formData, "primaryColor"),
-        "appearance.secondaryColor": getString(formData, "secondaryColor"),
-        "appearance.backgroundColor": getString(formData, "backgroundColor"),
-        "appearance.textColor": getString(formData, "textColor"),
+        "appearance.favicon": getString(
+          formData,
+          "favicon"
+        ),
 
-        "appearance.buttonRadius": getString(formData, "buttonRadius"),
-        "appearance.fontStyle": getString(formData, "fontStyle"),
-        "appearance.layoutStyle": getString(formData, "layoutStyle"),
+        "appearance.primaryColor": getString(
+          formData,
+          "primaryColor"
+        ),
+
+        "appearance.secondaryColor": getString(
+          formData,
+          "secondaryColor"
+        ),
+
+        "appearance.backgroundColor": getString(
+          formData,
+          "backgroundColor"
+        ),
+
+        "appearance.textColor": getString(
+          formData,
+          "textColor"
+        ),
+
+        "appearance.buttonRadius": getString(
+          formData,
+          "buttonRadius"
+        ),
+
+        "appearance.fontStyle": getString(
+          formData,
+          "fontStyle"
+        ),
+
+        "appearance.layoutStyle": getString(
+          formData,
+          "layoutStyle"
+        ),
 
         "appearance.promoBarEnabled":
           formData.get("promoBarEnabled") === "on",
@@ -303,14 +414,40 @@ export async function updateAppearanceAction(store: string, formData: FormData) 
           getString(formData, "promoMessages")
         ),
 
-        "appearance.heroTitle": getString(formData, "heroTitle"),
-        "appearance.heroSubtitle": getString(formData, "heroSubtitle"),
-        "appearance.heroImage": getString(formData, "heroImage"),
-        "appearance.heroCtaText": getString(formData, "heroCtaText"),
+        "appearance.heroTitle": getString(
+          formData,
+          "heroTitle"
+        ),
 
-        "appearance.bannerTitle": getString(formData, "bannerTitle"),
-        "appearance.bannerSubtitle": getString(formData, "bannerSubtitle"),
-        "appearance.bannerImage": getString(formData, "bannerImage"),
+        "appearance.heroSubtitle": getString(
+          formData,
+          "heroSubtitle"
+        ),
+
+        "appearance.heroImage": getString(
+          formData,
+          "heroImage"
+        ),
+
+        "appearance.heroCtaText": getString(
+          formData,
+          "heroCtaText"
+        ),
+
+        "appearance.bannerTitle": getString(
+          formData,
+          "bannerTitle"
+        ),
+
+        "appearance.bannerSubtitle": getString(
+          formData,
+          "bannerSubtitle"
+        ),
+
+        "appearance.bannerImage": getString(
+          formData,
+          "bannerImage"
+        ),
       },
     }
   );

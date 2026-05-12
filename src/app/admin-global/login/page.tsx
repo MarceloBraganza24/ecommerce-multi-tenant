@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { connectDB } from "@/lib/mongodb";
 import { AdminUser } from "@/models/AdminUser";
 import { verifyPassword } from "@/lib/password";
-import { createAdminSession } from "@/lib/admin-session";
 
 export default function SuperAdminLoginPage() {
   async function loginAction(formData: FormData) {
@@ -10,24 +10,38 @@ export default function SuperAdminLoginPage() {
 
     await connectDB();
 
-    const email = String(formData.get("email") || "").toLowerCase().trim();
+    const email = String(formData.get("email") || "")
+      .toLowerCase()
+      .trim();
+
     const password = String(formData.get("password") || "");
 
     const user = await AdminUser.findOne({
       email,
       role: "super_admin",
       active: true,
-    }).lean();
+    }).select("+passwordHash");
 
-    if (!user || !verifyPassword(password, String(user.passwordHash))) {
+    if (!user) {
       redirect("/admin-global/login?error=1");
     }
 
-    await createAdminSession({
-      userId: String(user._id),
-      role: "super_admin",
-      tenantId: null,
-      email,
+    const validPassword = await verifyPassword(
+      password,
+      String(user.passwordHash)
+    );
+
+    if (!validPassword) {
+      redirect("/admin-global/login?error=1");
+    }
+
+    const cookieStore = await cookies();
+
+    cookieStore.set("super_admin", "true", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
     });
 
     redirect("/admin-global");

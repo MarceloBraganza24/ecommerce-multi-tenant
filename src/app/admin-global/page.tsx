@@ -2,14 +2,25 @@ import { redirect } from "next/navigation";
 import { Tenant } from "@/models/Tenant";
 import { AdminUser } from "@/models/AdminUser";
 import { connectDB } from "@/lib/mongodb";
-import { requireSuperAdmin } from "@/lib/admin-session";
 import { hashPassword } from "@/lib/password";
+import { getAdminSession } from "@/lib/adminAuth";
+
+async function requireSuperAdmin() {
+  const session = await getAdminSession();
+
+  if (!session?.user || session.user.role !== "super_admin") {
+    redirect("/admin-global/login");
+  }
+
+  return session;
+}
 
 export default async function SuperAdminPage() {
   await requireSuperAdmin();
   await connectDB();
 
-  const tenants = await Tenant.find().sort({ createdAt: -1 }).lean();
+  const tenantsRaw = await Tenant.find().sort({ createdAt: -1 }).lean();
+  const tenants = JSON.parse(JSON.stringify(tenantsRaw));
 
   async function createTenantAction(formData: FormData) {
     "use server";
@@ -22,11 +33,18 @@ export default async function SuperAdminPage() {
     const email = String(formData.get("email") || "").toLowerCase().trim();
     const password = String(formData.get("password") || "");
 
+    if (!slug || !name || !email || !password) {
+      throw new Error("Faltan datos obligatorios");
+    }
+
     const tenant = await Tenant.create({
       slug,
       name,
       logoText: String(formData.get("logoText") || name),
-      whatsapp: String(formData.get("whatsapp") || ""),
+      whatsapp:
+        String(formData.get("whatsapp") || "").trim() ||
+        process.env.WHATSAPP_ADMIN_TO ||
+        "0000000000",
       primaryColor: String(formData.get("primaryColor") || "#111827"),
       freeShippingFrom: Number(formData.get("freeShippingFrom") || 0),
       mpAccessToken: String(formData.get("mpAccessToken") || ""),
@@ -34,15 +52,23 @@ export default async function SuperAdminPage() {
       heroSubtitle: String(formData.get("heroSubtitle") || ""),
       heroImage: String(formData.get("heroImage") || ""),
       bannerText: String(formData.get("bannerText") || ""),
+      social: {
+        instagram: "",
+        facebook: "",
+      },
       active: true,
+      plan: "free",
     });
+
+    const passwordHash = await hashPassword(password);
 
     await AdminUser.create({
       tenantId: tenant._id,
+      tenantSlug: slug,
       role: "tenant_admin",
       email,
       name,
-      passwordHash: hashPassword(password),
+      passwordHash,
       active: true,
     });
 
@@ -143,18 +169,25 @@ export default async function SuperAdminPage() {
           </thead>
 
           <tbody>
-            {tenants.map((tenant) => (
-              <tr key={String(tenant._id)}>
-                <td>{String(tenant.name)}</td>
-                <td>{String(tenant.slug)}</td>
-                <td>{tenant.active ? "Sí" : "No"}</td>
-                <td>
-                  <a href={`/${tenant.slug}/admin`} target="_blank">
-                    Abrir admin
-                  </a>
-                </td>
-              </tr>
-            ))}
+            {tenants.map(
+              (tenant: {
+                _id: string;
+                name: string;
+                slug: string;
+                active?: boolean;
+              }) => (
+                <tr key={String(tenant._id)}>
+                  <td>{String(tenant.name)}</td>
+                  <td>{String(tenant.slug)}</td>
+                  <td>{tenant.active ? "Sí" : "No"}</td>
+                  <td>
+                    <a href={`/${tenant.slug}/admin`} target="_blank">
+                      Abrir admin
+                    </a>
+                  </td>
+                </tr>
+              )
+            )}
           </tbody>
         </table>
       </section>

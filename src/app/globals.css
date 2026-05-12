@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 * {
   box-sizing: border-box;
 }
@@ -2034,5 +2036,925 @@ th {
   .previewHero img {
     width: 100%;
     height: 180px;
+  }
+}
+
+/* =========================
+   SaaS Platform Base
+========================= */
+
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e5e7eb;
+  --primary: #111827;
+  --primary-hover: #1f2937;
+  --soft: #f1f5f9;
+  --purple: #7c3aed;
+  --purple-soft: #f5f3ff;
+  --green: #16a34a;
+  --red: #dc2626;
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  --shadow-sm: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.08), transparent 32rem),
+    var(--bg);
+  color: var(--text);
+}
+
+/* =========================
+   Generic UI
+========================= */
+
+.saasPage {
+  min-height: 100vh;
+  padding: 40px 16px;
+}
+
+.saasContainer {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.saasCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.saasButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  border: 0;
+  background: var(--primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.saasButton:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.saasButton:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.saasButtonSecondary {
+  background: #fff;
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+
+.saasButtonSecondary:hover {
+  background: var(--soft);
+}
+
+.saasInput,
+.saasTextarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 18px;
+  background: #fff;
+  padding: 14px 16px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: 0.2s ease;
+}
+
+.saasTextarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.saasInput:focus,
+.saasTextarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
+}
+
+.saasLabel {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.saasHelp {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.saasError {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: var(--red);
+  padding: 12px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+}
+
+/* =========================
+   Landing
+========================= */
+
+.landingHero {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 64px 16px;
+}
+
+.landingBox {
+  max-width: 920px;
+  text-align: center;
+}
+
+.landingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.landingTitle {
+  margin-top: 24px;
+  font-size: clamp(42px, 7vw, 74px);
+  line-height: 0.95;
+  letter-spacing: -0.06em;
+  font-weight: 900;
+  color: var(--text);
+}
+
+.landingSubtitle {
+  max-width: 680px;
+  margin: 24px auto 0;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.landingActions {
+  margin-top: 34px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.landingGrid {
+  margin-top: 54px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.landingFeature {
+  padding: 22px;
+  text-align: left;
+}
+
+.landingFeatureIcon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--soft);
+  font-size: 22px;
+}
+
+.landingFeature h3 {
+  margin-top: 16px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.landingFeature p {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* =========================
+   Onboarding
+========================= */
+
+.onboardingPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 40px 16px;
+}
+
+.onboardingShell {
+  width: 100%;
+  max-width: 1120px;
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+.onboardingAside {
+  min-height: 560px;
+  padding: 34px;
+  border-radius: 34px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), transparent),
+    #0f172a;
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.onboardingAsideBadge {
+  color: #cbd5e1;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+.onboardingAsideTitle {
+  margin-top: 20px;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 900;
+}
+
+.onboardingAsideText {
+  margin-top: 18px;
+  color: #cbd5e1;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.onboardingChecklist {
+  margin-top: 34px;
+  display: grid;
+  gap: 14px;
+}
+
+.onboardingCheckItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #e5e7eb;
+  font-size: 14px;
+}
+
+.onboardingCheckIcon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.onboardingCard {
+  min-height: 620px;
+  padding: 30px;
+  border-radius: 34px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.onboardingTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.onboardingStepLabel {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+}
+
+.onboardingTitle {
+  margin-top: 4px;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 900;
+}
+
+.onboardingPercent {
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--soft);
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.progressTrack {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5e7eb;
+  margin-bottom: 28px;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--primary);
+  transition: width 0.45s ease;
+}
+
+.stepContent {
+  min-height: 340px;
+}
+
+.stepFade {
+  animation: stepFade 0.28s ease;
+}
+
+@keyframes stepFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.templateCard {
+  width: 100%;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.templateCard:hover {
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+.templateCardSelected {
+  border-color: var(--primary);
+  background: #f8fafc;
+  box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.06);
+}
+
+.templatePreview {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.templatePreview span {
+  height: 58px;
+  border-radius: 16px;
+  background: #e5e7eb;
+}
+
+.aiBox {
+  padding: 18px;
+  border-radius: 26px;
+  border: 1px solid #ddd6fe;
+  background: var(--purple-soft);
+}
+
+.aiToggle {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #374151;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aiToggleActive {
+  border-color: var(--purple);
+  background: var(--purple);
+  color: #fff;
+}
+
+.onboardingActions {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.successState {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.successIcon {
+  width: 70px;
+  height: 70px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #dcfce7;
+  font-size: 34px;
+  margin: 0 auto 20px;
+}
+
+/* =========================
+   Pricing
+========================= */
+
+.pricingHeader {
+  text-align: center;
+  margin-bottom: 44px;
+}
+
+.pricingTitle {
+  font-size: clamp(34px, 5vw, 58px);
+  letter-spacing: -0.05em;
+  font-weight: 900;
+}
+
+.pricingSubtitle {
+  margin-top: 14px;
+  color: var(--muted);
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.pricingCard {
+  position: relative;
+  padding: 32px;
+  border-radius: 34px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.pricingCardPro {
+  border: 2px solid var(--purple);
+  box-shadow: 0 24px 80px rgba(124, 58, 237, 0.16);
+}
+
+.recommendedBadge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--purple);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.pricingPrice {
+  margin-top: 24px;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.pricingList {
+  margin-top: 26px;
+  display: grid;
+  gap: 12px;
+  color: #475569;
+  font-size: 14px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 900px) {
+  .onboardingShell {
+    grid-template-columns: 1fr;
+  }
+
+  .onboardingAside {
+    display: none;
+  }
+
+  .landingGrid,
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .landingTitle {
+    font-size: 44px;
+  }
+
+  .onboardingCard {
+    min-height: auto;
+    padding: 24px;
+  }
+}
+
+.pricingPage {
+  min-height: 100vh;
+  padding: 72px 16px;
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.1), transparent 34rem),
+    var(--bg);
+}
+
+.pricingPlanName {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.pricingPlanDescription {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.pricingMuted {
+  opacity: 0.55;
+}
+
+.pricingButton {
+  width: 100%;
+  margin-top: 32px;
+}
+
+.pricingButtonPro {
+  background: var(--purple);
+}
+
+.pricingButtonPro:hover {
+  background: #6d28d9;
+}
+
+/* =========================
+   Admin SaaS Premium
+========================= */
+
+.adminShell {
+  min-height: 100vh;
+  display: flex;
+  background:
+    radial-gradient(circle at top right, rgba(124, 58, 237, 0.08), transparent 30rem),
+    #f8fafc;
+  color: #0f172a;
+}
+
+.adminMain {
+  flex: 1;
+  min-width: 0;
+  padding: 32px;
+}
+
+.adminContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.adminSidebar {
+  width: 280px;
+  min-height: 100vh;
+  background: rgba(255, 255, 255, 0.9);
+  border-right: 1px solid #e5e7eb;
+  padding: 20px;
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(16px);
+}
+
+.adminBrand {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 18px;
+}
+
+.adminBrandLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+  font-weight: 800;
+}
+
+.adminBrandTitle {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.adminViewStore {
+  display: inline-block;
+  margin-top: 10px;
+  color: #64748b;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.adminNav {
+  display: grid;
+  gap: 6px;
+}
+
+.adminNavLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.adminNavLink:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.adminNavLinkActive {
+  background: #0f172a;
+  color: white;
+}
+
+.adminLogout {
+  margin-top: 20px;
+  width: 100%;
+  border: 0;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 16px;
+  padding: 12px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adminHero {
+  border: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 32px;
+  padding: 32px;
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.06);
+  display: grid;
+  grid-template-columns: 1.4fr 0.6fr;
+  gap: 24px;
+}
+
+.adminBadge {
+  display: inline-flex;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.adminTitle {
+  margin-top: 18px;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.05em;
+  font-weight: 950;
+}
+
+.adminText {
+  margin-top: 14px;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.adminActions {
+  margin-top: 24px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adminButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: white;
+  text-decoration: none;
+  border: 0;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.adminButtonSecondary {
+  background: white;
+  color: #0f172a;
+  border: 1px solid #e5e7eb;
+}
+
+.adminPlanCard {
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  border-radius: 28px;
+  padding: 24px;
+}
+
+.adminPlanLabel {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.adminPlanValue {
+  margin-top: 8px;
+  font-size: 32px;
+  font-weight: 950;
+}
+
+.adminStats {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.adminStatCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 26px;
+  padding: 22px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+}
+
+.adminStatLabel {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.adminStatValue {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.adminStatHelp {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.adminSection {
+  margin-top: 34px;
+}
+
+.adminSectionTitle {
+  font-size: 26px;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.adminSectionText {
+  margin-top: 8px;
+  color: #64748b;
+}
+
+.adminQuickGrid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.adminQuickCard {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  padding: 24px;
+  text-decoration: none;
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  transition: 0.2s ease;
+}
+
+.adminQuickCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
+}
+
+.adminQuickIcon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #f1f5f9;
+  font-size: 24px;
+  margin-bottom: 18px;
+}
+
+.adminQuickTitle {
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.adminQuickText {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.adminQuickEnter {
+  margin-top: 18px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .adminShell {
+    display: block;
+  }
+
+  .adminSidebar {
+    position: relative;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .adminHero,
+  .adminStats,
+  .adminQuickGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminMain {
+    padding: 20px;
+  }
+
+  .adminTitle {
+    font-size: 34px;
   }
 }

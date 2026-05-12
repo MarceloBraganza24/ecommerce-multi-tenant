@@ -8,6 +8,11 @@ const AdminUserSchema = new Schema(
       default: null,
       index: true,
     },
+    tenantSlug: {
+      type: String,
+      required: true,
+      index: true,
+    },
     role: {
       type: String,
       enum: ["super_admin", "tenant_admin"],

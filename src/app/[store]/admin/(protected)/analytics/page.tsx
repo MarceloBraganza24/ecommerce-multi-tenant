@@ -1,6 +1,8 @@
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { connectDB } from "@/lib/mongodb";
 import { AnalyticsEvent } from "@/models/AnalyticsEvent";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ store: string }>;
@@ -10,7 +12,16 @@ type Props = {
 export default async function AdminAnalyticsPage({ params, searchParams }: Props) {
   const { store } = await params;
   const { from, to } = await searchParams;
-  const { tenant } = await requireTenantAdmin(store);
+
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   await connectDB();
 
@@ -23,7 +34,7 @@ export default async function AdminAnalyticsPage({ params, searchParams }: Props
   const end = to ? new Date(to) : today;
 
   const events = await AnalyticsEvent.find({
-    tenantId: tenant._id,
+    tenantId: safeTenant._id,
     createdAt: { $gte: start, $lte: end },
   })
     .sort({ createdAt: -1 })

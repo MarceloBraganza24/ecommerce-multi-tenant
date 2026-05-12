@@ -1,7 +1,9 @@
+import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { Product } from "@/models/Product";
 import { Order } from "@/models/Order";
+import { Tenant } from "@/models/Tenant";
 
 type Props = {
   params: Promise<{ store: string }>;
@@ -9,14 +11,22 @@ type Props = {
 
 export default async function AdminDashboardPage({ params }: Props) {
   const { store } = await params;
-  const { tenant } = await requireTenantAdmin(store);
 
+  await requireTenantAdmin(store);
   await connectDB();
 
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
+
   const [productsCount, ordersCount, paidOrders] = await Promise.all([
-    Product.countDocuments({ tenantId: tenant._id, active: true }),
-    Order.countDocuments({ tenantId: tenant._id }),
-    Order.find({ tenantId: tenant._id, status: "paid" }).lean(),
+    Product.countDocuments({ tenantId: safeTenant._id, active: true }),
+    Order.countDocuments({ tenantId: safeTenant._id }),
+    Order.find({ tenantId: safeTenant._id, status: "paid" }).lean(),
   ]);
 
   const revenue = paidOrders.reduce(

@@ -23,15 +23,17 @@ export function CheckoutForm({ store }: Props) {
     setQuoteLoading(true);
 
     try {
-      const res = await fetch(`/${store}/api/shipping/quote`, {
+      const res = await fetch(`/api/shipping/quote`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          store,
           deliveryType,
           postalCodeDestination: postalCode,
           itemsTotal: total,
+          items,
         }),
       });
 

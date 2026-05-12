@@ -1,73 +1,41 @@
 import { redirect } from "next/navigation";
-import { connectDB } from "@/lib/mongodb";
-import { getTenantBySlug } from "@/lib/tenants";
-import { AdminUser } from "@/models/AdminUser";
-import { verifyPassword } from "@/lib/password";
-import { createAdminSession } from "@/lib/admin-session";
+import { getAdminSession } from "@/lib/adminAuth";
+import { AdminLoginForm } from "@/components/admin/auth/AdminLoginForm";
 
 type Props = {
-  params: Promise<{ store: string }>;
-  searchParams: Promise<{ error?: string }>;
+  params: Promise<{
+    store: string;
+  }>;
 };
 
-export default async function AdminLoginPage({ params, searchParams }: Props) {
+export default async function AdminLoginPage({ params }: Props) {
   const { store } = await params;
-  const { error } = await searchParams;
 
-  async function loginAction(formData: FormData) {
-    "use server";
+  const session = await getAdminSession();
 
-    await connectDB();
-
-    const tenant = await getTenantBySlug(store);
-    if (!tenant) redirect(`/${store}/admin/login?error=1`);
-
-    const email = String(formData.get("email") || "").toLowerCase().trim();
-    const password = String(formData.get("password") || "");
-
-    const user = await AdminUser.findOne({
-      email,
-      active: true,
-      $or: [
-        { role: "super_admin" },
-        { role: "tenant_admin", tenantId: tenant._id },
-      ],
-    }).lean();
-
-    if (!user || !verifyPassword(password, String(user.passwordHash))) {
-      redirect(`/${store}/admin/login?error=1`);
-    }
-
-    await createAdminSession({
-      userId: String(user._id),
-      role: user.role as "super_admin" | "tenant_admin",
-      tenantId: user.tenantId ? String(user.tenantId) : null,
-      email,
-    });
-
+  if (session?.user?.tenantSlug === store) {
     redirect(`/${store}/admin`);
   }
 
   return (
-    <div className="adminLoginPage">
-      <form action={loginAction} className="adminLoginCard">
-        <span className="eyebrow">Admin</span>
-        <h1>Ingresar al panel</h1>
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+        <div className="mb-8 text-center">
+          <p className="text-sm font-semibold uppercase tracking-wide text-gray-400">
+            Admin
+          </p>
 
-        {error && <p className="adminError">Datos incorrectos</p>}
+          <h1 className="mt-2 text-3xl font-bold text-gray-950">
+            Ingresar a la tienda
+          </h1>
 
-        <label>
-          Email
-          <input name="email" type="email" required />
-        </label>
+          <p className="mt-2 text-sm text-gray-500">
+            Accedé al panel de administración de {store}.
+          </p>
+        </div>
 
-        <label>
-          Contraseña
-          <input name="password" type="password" required />
-        </label>
-
-        <button type="submit">Entrar</button>
-      </form>
-    </div>
+        <AdminLoginForm store={store} />
+      </div>
+    </main>
   );
 }

@@ -48,13 +48,13 @@ export function Footer({ tenant }: Props) {
         <div>
           <h4>Redes</h4>
           <div className="footerLinks">
-            {tenant.social.instagram && (
+            {tenant.social?.instagram && (
               <a href={tenant.social.instagram} target="_blank">
                 Instagram
               </a>
             )}
 
-            {tenant.social.facebook && (
+            {tenant.social?.facebook && (
               <a href={tenant.social.facebook} target="_blank">
                 Facebook
               </a>

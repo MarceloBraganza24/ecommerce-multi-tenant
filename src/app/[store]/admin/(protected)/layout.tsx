@@ -1,20 +1,45 @@
 import type { ReactNode } from "react";
-import { requireTenantAdmin } from "@/lib/admin-session";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { requireTenantAdmin } from "@/lib/adminAuth";
+import { AdminSidebar } from "@/components/admin/layout/AdminSidebar";
+import { connectDB } from "@/lib/mongodb";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Props = {
   children: ReactNode;
   params: Promise<{ store: string }>;
 };
 
-export default async function AdminLayout({ children, params }: Props) {
+export default async function AdminLayout({
+  children,
+  params,
+}: Props) {
   const { store } = await params;
-  const { tenant } = await requireTenantAdmin(store);
-  
+
+  await requireTenantAdmin(store);
+
+  await connectDB();
+
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
+
   return (
-    <div className="adminShell">
-      <AdminSidebar store={store} tenantName={tenant.name} />
-      <main className="adminMain">{children}</main>
+    <div className="min-h-screen bg-gray-50 lg:flex">
+      <div className="hidden lg:block">
+        <AdminSidebar
+          store={store}
+          storeName={safeTenant.name}
+        />
+      </div>
+
+      <main className="min-w-0 flex-1">
+        {children}
+      </main>
     </div>
   );
 }

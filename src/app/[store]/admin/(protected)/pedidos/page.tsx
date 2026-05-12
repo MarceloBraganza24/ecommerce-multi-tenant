@@ -1,8 +1,10 @@
 import { Order } from "@/models/Order";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { getOrderStatusLabel } from "@/lib/orders";
 import type { MongoOrder } from "@/types/store";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{ store: string }>;
@@ -10,11 +12,20 @@ type Props = {
 
 export default async function AdminOrdersPage({ params }: Props) {
   const { store } = await params;
-  const { tenant } = await requireTenantAdmin(store);
+  
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   await connectDB();
 
-  const orders = (await Order.find({ tenantId: tenant._id })
+  const orders = (await Order.find({ tenantId: safeTenant._id })
     .sort({ createdAt: -1 })
     .limit(100)
     .lean()) as unknown as MongoOrder[];

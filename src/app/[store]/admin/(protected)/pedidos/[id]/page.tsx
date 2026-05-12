@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
 import { Order } from "@/models/Order";
 import { connectDB } from "@/lib/mongodb";
-import { requireTenantAdmin } from "@/lib/admin-session";
+import { requireTenantAdmin } from "@/lib/adminAuth";
 import { getOrderStatusLabel } from "@/lib/orders";
 import { updateOrderStatusAction } from "../../actions";
 import type { MongoOrder, OrderStatus } from "@/types/store";
+import { Tenant } from "@/models/Tenant";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{
@@ -26,12 +27,21 @@ const statuses: OrderStatus[] = [
 export default async function AdminOrderDetailPage({ params }: Props) {
   const { store, id } = await params;
 
-  const { tenant } = await requireTenantAdmin(store);
+  await requireTenantAdmin(store);
+  
+  const tenant = await Tenant.findOne({ slug: store }).lean();
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
+  
   await connectDB();
 
   const order = (await Order.findOne({
     _id: id,
-    tenantId: tenant._id,
+    tenantId: safeTenant._id,
   }).lean()) as unknown as MongoOrder | null;
 
   if (!order) notFound();
