@@ -8,15 +8,22 @@ type Props = {
 export default async function ContactPage({ params }: Props) {
   const { store } = await params;
 
-  const tenant = getTenantBySlug(store);
-  if (!tenant) notFound();
+  const tenant = await getTenantBySlug(store);
+
+  if (!tenant) {
+    notFound();
+  }
+
+  const safeTenant = JSON.parse(JSON.stringify(tenant));
 
   return (
     <div className="innerPage">
       <div className="pageHeader">
         <span className="eyebrow">Contacto</span>
         <h1>Hablemos</h1>
-        <p>Consultanos por productos, envíos, pagos o el estado de tu pedido.</p>
+        <p>
+          Consultanos por productos, envíos, pagos o el estado de tu pedido.
+        </p>
       </div>
 
       <section className="contactGrid">
@@ -29,7 +36,7 @@ export default async function ContactPage({ params }: Props) {
 
           <a
             className="primaryButton"
-            href={`https://wa.me/${tenant.whatsapp}`}
+            href={`https://wa.me/${safeTenant.whatsapp}`}
             target="_blank"
           >
             Escribir por WhatsApp
