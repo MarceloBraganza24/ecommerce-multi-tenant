@@ -40,7 +40,7 @@ export default function PricingPage() {
             <h2 className="pricingPlanName">PRO 🚀</h2>
             <p className="pricingPlanDescription">Para crecer</p>
 
-            <p className="pricingPrice">$9 / mes</p>
+            <p className="pricingPrice">$19 / mes</p>
 
             <ul className="pricingList">
               <li>✔ Productos ilimitados</li>
