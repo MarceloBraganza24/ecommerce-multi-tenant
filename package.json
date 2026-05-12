@@ -11,7 +11,8 @@
     "update:images": "tsx scripts/update-product-images.ts",
     "set:admin": "tsx scripts/set-admin-key.ts",
     "fix:images": "tsx scripts/fix-product-images.ts",
-    "migrate:variants": "tsx scripts/migrate-products-to-variants.ts"
+    "migrate:variants": "tsx scripts/migrate-products-to-variants.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

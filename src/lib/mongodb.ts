@@ -27,7 +27,7 @@ export async function connectDB() {
 
   if (!cached.promise) {
     cached.promise = mongoose.connect(MONGODB_URI!, {
-      dbName: "multi_tenant_store",
+      dbName: "multi_tenant_ecommerce_platform",
     });
   }
 
