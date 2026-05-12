@@ -8,7 +8,7 @@ type Props = {
 export default async function AboutPage({ params }: Props) {
   const { store } = await params;
 
-  const tenant = getTenantBySlug(store);
+  const tenant = await getTenantBySlug(store);
   if (!tenant) notFound();
 
   return (
