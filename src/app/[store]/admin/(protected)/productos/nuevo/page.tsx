@@ -5,25 +5,36 @@ type Props = {
   params: Promise<{ store: string }>;
 };
 
-export default async function NewProductPage({ params }: Props) {
+export default async function NewProductPage({
+  params,
+}: Props) {
   const { store } = await params;
 
   return (
     <div>
       <div className="adminHeader">
         <div>
-          <span className="eyebrow">Nuevo producto</span>
+          <span className="eyebrow">
+            Nuevo producto
+          </span>
+
           <h1>Cargar producto</h1>
         </div>
       </div>
 
       <form
         className="adminForm"
-        action={createProductAction.bind(null, store)}
+        action={createProductAction.bind(
+          null,
+          store
+        )}
       >
-        <ProductFields />
+        <ProductFields store={store} />
 
-        <button className="adminPrimaryButton" type="submit">
+        <button
+          className="adminPrimaryButton"
+          type="submit"
+        >
           Guardar producto
         </button>
       </form>
@@ -31,7 +42,13 @@ export default async function NewProductPage({ params }: Props) {
   );
 }
 
-function ProductFields() {
+type ProductFieldsProps = {
+  store: string;
+};
+
+function ProductFields({
+  store,
+}: ProductFieldsProps) {
   return (
     <>
       <label>
@@ -41,7 +58,11 @@ function ProductFields() {
 
       <label>
         Slug
-        <input name="slug" required placeholder="zapatillas-running" />
+        <input
+          name="slug"
+          required
+          placeholder="zapatillas-running"
+        />
       </label>
 
       <label>
@@ -51,12 +72,19 @@ function ProductFields() {
 
       <label>
         Precio
-        <input name="price" type="number" required />
+        <input
+          name="price"
+          type="number"
+          required
+        />
       </label>
 
       <label>
         Precio anterior
-        <input name="compareAtPrice" type="number" />
+        <input
+          name="compareAtPrice"
+          type="number"
+        />
       </label>
 
       <label>
@@ -66,14 +94,26 @@ function ProductFields() {
 
       <label>
         Slug categoría
-        <input name="categorySlug" required placeholder="zapatillas" />
+        <input
+          name="categorySlug"
+          required
+          placeholder="zapatillas"
+        />
       </label>
 
-      <ImageUploader name="images" label="Imágenes" />
+      <ImageUploader
+        store={store}
+        name="images"
+        label="Imágenes"
+      />
 
       <label>
         Stock
-        <input name="stock" type="number" defaultValue={0} />
+        <input
+          name="stock"
+          type="number"
+          defaultValue={0}
+        />
       </label>
 
       <label>
@@ -93,11 +133,19 @@ function ProductFields() {
 
       <div className="adminCheckboxes">
         <label>
-          <input name="featured" type="checkbox" /> Destacado
+          <input
+            name="featured"
+            type="checkbox"
+          />
+          {" "}Destacado
         </label>
 
         <label>
-          <input name="offer" type="checkbox" /> Oferta
+          <input
+            name="offer"
+            type="checkbox"
+          />
+          {" "}Oferta
         </label>
       </div>
     </>

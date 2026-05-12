@@ -47,6 +47,7 @@ export default async function AdminAppearancePage({ params }: Props) {
 
           <ImageUploader
             name="logoImage"
+            store={store}
             label="Logo"
             defaultValue={appearance.logoImage || ""}
           />
@@ -54,6 +55,7 @@ export default async function AdminAppearancePage({ params }: Props) {
           <ImageUploader
             name="favicon"
             label="Favicon"
+            store={store}
             defaultValue={appearance.favicon || ""}
           />
 
@@ -185,6 +187,7 @@ export default async function AdminAppearancePage({ params }: Props) {
           <ImageUploader
             name="heroImage"
             label="Imagen hero"
+            store={store}
             defaultValue={appearance.heroImage || safeTenant.heroImage || ""}
           />
 
@@ -218,6 +221,7 @@ export default async function AdminAppearancePage({ params }: Props) {
             name="bannerImage"
             label="Imagen banner"
             defaultValue={appearance.bannerImage || ""}
+            store={store}
           />
 
           <button className="adminPrimaryButton" type="submit">

@@ -88,6 +88,7 @@ export default async function EditProductPage({ params }: Props) {
         <ImageUploader
           name="images"
           label="Imágenes"
+          store={store}
           defaultValue={product.images?.join("\n") || ""}
         />
 
