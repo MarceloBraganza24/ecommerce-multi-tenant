@@ -1,5 +1,6 @@
 import { connectDB } from "@/lib/mongodb";
 import { Category } from "@/models/Category";
+import type { MongoCategory } from "@/types/store";
 
 export async function getCategoriesByTenantId(tenantId: string) {
   await connectDB();
@@ -14,7 +15,7 @@ export async function getCategoriesByTenantId(tenantId: string) {
   return JSON.parse(JSON.stringify(categories));
 }
 
-export function buildCategoryTree(categories: any[], parentId: string | null = null): any[] {
+export function buildCategoryTree(categories: MongoCategory[], parentId: string | null = null): MongoCategory[] {
   return categories
     .filter((category) => {
       const currentParentId = category.parentId ? String(category.parentId) : null;

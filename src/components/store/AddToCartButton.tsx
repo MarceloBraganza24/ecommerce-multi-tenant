@@ -1,9 +1,10 @@
 "use client";
 
 import { useCart } from "./CartProvider";
+import type { MongoProduct } from "@/types/store";
 
 type Props = {
-  product: any;
+  product: MongoProduct;
 };
 
 export function AddToCartButton({ product }: Props) {
